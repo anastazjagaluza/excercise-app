@@ -1,0 +1,33 @@
+{
+  "name": "excercise-app",
+  "version": "1.0.0",
+  "description": "app for planning custom workout",
+  "main": "index.js",
+  "scripts": {
+    "watch": "parcel index.html workouts.html add.html",
+    "build": "parcel build index.html workouts.html add.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anastazjagaluza/excercise-app.git"
+  },
+  "keywords": [
+    "sport",
+    "workout",
+    "fitness",
+    "custom"
+  ],
+  "author": "Anastazja Galuza",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anastazjagaluza/excercise-app/issues"
+  },
+  "homepage": "https://github.com/anastazjagaluza/excercise-app#readme",
+  "devDependencies": {
+    "lit-element": "^2.3.1",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}
