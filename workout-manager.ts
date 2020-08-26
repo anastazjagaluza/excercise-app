@@ -9,9 +9,7 @@ export class WorkoutManager extends LitElement{
     @property({attribute: false}) workout: workout = {name: "My Workout", excercises: [
         {name: "Push-up", sets: 3, reps: 10, repLength: 30, pauseLength: 15}]};
 
-    constructor(){
-        super();
-    }
+        
     static get styles(){
         return css `
         :host {
@@ -118,7 +116,7 @@ export class WorkoutManager extends LitElement{
                 </div>`
                 )}
             <div class="excercise">     
-                <a>Add a new excercise... </a>
+                <a href="add.html">Add a new excercise... </a>
                 <div id="rest">
                     <div id="new" class="circle">+</div>
                 </div>

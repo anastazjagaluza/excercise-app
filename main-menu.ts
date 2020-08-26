@@ -3,9 +3,7 @@ import 'regenerator-runtime/runtime';
 
 @customElement("main-menu")
 export class MainMenu extends LitElement{
-    constructor(){
-        super();
-    }
+
     static get styles(){
         return css `
         :host {
@@ -28,12 +26,15 @@ export class MainMenu extends LitElement{
             padding: calc(28% - 1rem) 0;
             font-family: var(--main-font);
         }
+
         #start {
             background-color: var(--main-green);
         }
+
         #create {
             background-color: var(--main-blue);
         }
+        
         #manage {
             background-color: var(--main-pink);
         }
