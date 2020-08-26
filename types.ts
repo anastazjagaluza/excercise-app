@@ -1,6 +1,6 @@
 export interface excercise {
     name: string,
-    sets: number,
+    sets?: number,
     reps: number,
     repLength: number,
     pauseLength: number
