@@ -1,4 +1,4 @@
-import { html, LitElement, css, unsafeCSS, property, customElement } from "lit-element";
+import { html, LitElement, css, customElement } from "lit-element";
 import 'regenerator-runtime/runtime';
 
 @customElement("main-menu")
@@ -49,12 +49,23 @@ export class MainMenu extends LitElement{
         `
     }
 
+    bluetoothStuff() {
+        navigator.bluetooth.requestDevice({filters: [{name: "HONOR Band 5-66C"}]})
+.then(device => {
+  // Human-readable name of the device.
+  console.log(device);
 
+  // Attempts to connect to remote GATT Server.
+  return device.gatt.connect();
+})
+.then(async server => { const services = await server.getPrimaryServices(); console.log(services);  })
+.catch(error => { console.log(error); });
+    }
 
     render(){
         return html`
-            <a class="router" id="start">Start working out!</a>
-            <a class="router" id="create">Create a new workout</a>
+            <a class="router" id="start">Excercise now</a>
+            <a class="router" @click="${this.bluetoothStuff}"  id="create">See your progress</a>
             <a class="router" id="manage" href="workouts.html">Manage your workouts</a>
             <a id="logout" href="">Log out</a>
              `
