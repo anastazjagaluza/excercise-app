@@ -49,17 +49,30 @@ export class MainMenu extends LitElement{
         `
     }
 
-    bluetoothStuff() {
-        navigator.bluetooth.requestDevice({filters: [{name: "HONOR Band 5-66C"}]})
-.then(device => {
-  // Human-readable name of the device.
-  console.log(device);
-
-  // Attempts to connect to remote GATT Server.
-  return device.gatt.connect();
-})
-.then(async server => { const services = await server.getPrimaryServices(); console.log(services);  })
-.catch(error => { console.log(error); });
+    async bluetoothStuff() {
+      try {
+        console.log('Requesting Bluetooth Device...');
+        const device  = await navigator.bluetooth.requestDevice({
+            filters: [{name: "HONOR Band 5-66C"}, {services: ['heart_rate']}]});
+    
+        console.log('Connecting to GATT Server...');
+        const server = await device.gatt.connect();
+    
+        console.log('Getting Heart Rate Service...');
+        const service = await server.getPrimaryService('heart_rate');
+    
+        console.log('Getting Heart Rate Control Point Characteristic...');
+        const characteristic = await service.getCharacteristic('heart_rate_control_point');
+    
+        console.log('Writing Heart Rate Control Point Characteristic...');
+        // Writing 1 is the signal to reset energy expended.
+        let resetEnergyExpended = Uint8Array.of(1);
+        await characteristic.writeValue(resetEnergyExpended);
+    
+        console.log('> Energy expended has been reset.');
+      } catch(error) {
+        console.log('Argh! ' + error);
+      }
     }
 
     render(){
