@@ -7,8 +7,9 @@ import { workout, workoutList } from "./types";
 export class ListItems extends LitElement{
 
     @property({type: Boolean, attribute: true}) active = true;
-    @property({attribute: false}) workout: workout;
-    @property({attribute: false}) workoutList: workoutList;
+    @property({attribute: false}) workout: workout | undefined;
+    @property({attribute: false}) workoutList: workoutList | undefined;
+  
 
         
     static get styles(){
@@ -111,7 +112,7 @@ export class ListItems extends LitElement{
             ${this.workout != null 
                 ? this.workout.excercises.map(el =>
                 html `<div class="excercise">
-                <a>${el.name}</a>
+                <a href="add.html?id=${el.id}">${el.name}</a>
                     <div class="detailedgroup">
                         <div class="circle"><span class="details">${el.sets} / ${el.reps}</span></div>
                         <div class="circle"><span class="details lengths">${el.repLength}s / ${el.pauseLength}s</span></div>
@@ -120,14 +121,16 @@ export class ListItems extends LitElement{
                 : this.workoutList.excercises.map(el=>
                     html `
                     <div class="excercise">
-                     <a>${el.name}</a>
+                     <a href="workouts.html?id=${el.id}">${el.name}</a>
                     <div class="detailedgroup">
                         <div class="circle"><span class="details lengths">${el.excercises}</span></div>
                     </div>
                 </div>
                     `)}
             <div class="excercise">     
-                <a href="add.html">Add a new ${this.workout != null ? "excercise" : "workout"}... </a>
+                ${this.workout != null 
+                    ? html `<a href="add.html">Add a new excercise... </a>`
+                    : html `<a href="workouts.html?new">Add a new workout... </a>`}
                 <div class="detailedgroup">
                     <div id="new" class="circle"><span class="details lengths">+</span></div>
                 </div>

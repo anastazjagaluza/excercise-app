@@ -2,3 +2,4 @@ node_modules
 .browserslistrc
 .cache
 dist
+sample-account.json

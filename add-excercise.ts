@@ -1,22 +1,21 @@
 import { html, LitElement, css, unsafeCSS, property, customElement } from "lit-element";
 import 'regenerator-runtime/runtime';
 import { excercise } from "./types";
-
 @customElement("add-excercise")
 export class AddExcercise extends LitElement{
     
-    
+    @property({type: Boolean, attribute: false}) editingMode: boolean = false;
     @property({type: Boolean, attribute: false}) durationBased: boolean = false;
     @property({type: Boolean, attribute: false}) repetitionBased: boolean = false;
-    @property({type: Number, attribute: false}) reps: number = 1;
-    @property({type: Number, attribute: false}) sets: number = 1;
     @property({type: Number, attribute: false}) step: number = 0;
-    @property({type: Number, attribute: false}) pause: number = 15;
+    @property({type: Array, attribute: false}) pauses = [{value: "5", id: "five"}, {value: "15", id: "fifteen"}, {value: "30", id: "thirty"}];
     @property({attribute: false}) excercise: excercise = {
+        id: "",
         name: "",
+        sets: 0,
         reps: 0,
-        repLength: 5,
-        pauseLength: 15
+        repLength: 0,
+        pauseLength: 0
     };
 
     static get styles() {
@@ -234,9 +233,36 @@ export class AddExcercise extends LitElement{
             box-shadow: inset 1px 3px 3px rgba(0,0,0,0.2);
         }
 
-        #repsdisplay, #setsdisplay {
-            position: absolute;
-        }`
+        .displayed {
+            padding-top: .7rem;
+        }
+        `
+    }
+
+    firstUpdated(){
+        const params = new URL(location.href).searchParams;
+        if(params.get('id') != null ) {
+            const newExcercise: excercise = {
+                id: "1",
+                name: "Push-ups",
+                reps: 3,
+                repLength: 30,
+                pauseLength: 30
+            };
+
+            if(newExcercise.sets == null || newExcercise.sets == 0){
+                this.durationBased = true;
+                this.editingMode = true;
+            }
+            else {
+                this.repetitionBased = true;
+            }
+            this.excercise = newExcercise;
+            
+        }
+
+        this.requestUpdate();
+    
     }
 
     saveType(e: CustomEvent){
@@ -289,19 +315,19 @@ export class AddExcercise extends LitElement{
 
     displayreps() {
         const target = this.shadowRoot.querySelector("#reps") as HTMLInputElement;
-        this.reps = Number(target.value);
-        const display = this.shadowRoot.querySelector("#repsdisplay") as HTMLSpanElement;
-        display.style.top = target.offsetTop - target.offsetHeight / 2 + "px";
-        display.style.left = (target.offsetLeft + (this.reps/16 * target.offsetWidth)) - 10 + "px";
+        this.excercise.reps = Number(target.value);
+        // const display = this.shadowRoot.querySelector("#repsdisplay") as HTMLSpanElement;
+        // display.style.top = target.offsetTop - target.offsetHeight / 2 + "px";
+        // display.style.left = (target.offsetLeft + (this.reps/16 * target.offsetWidth)) - 10 + "px";
         this.requestUpdate();
     }
 
     displaysets() {       
         const target = this.shadowRoot.querySelector("#sets") as HTMLInputElement;
-        this.sets = Number(target.value);
-        const display = this.shadowRoot.querySelector("#setsdisplay") as HTMLSpanElement;
-        display.style.top = target.offsetTop - target.offsetHeight / 2 + "px";
-        display.style.left = (target.offsetLeft + (this.sets/23 * target.offsetWidth)) + 2 + "px"; 
+        this.excercise.sets = Number(target.value);
+        // const display = this.shadowRoot.querySelector("#setsdisplay") as HTMLSpanElement;
+        // display.style.top = target.offsetTop - target.offsetHeight / 2 + "px";
+        // display.style.left = (target.offsetLeft + (this.sets/23 * target.offsetWidth)) + 2 + "px"; 
         this.requestUpdate();
     }
 
@@ -312,24 +338,7 @@ export class AddExcercise extends LitElement{
     }
 
     goStepType() {
-        this.step = 1;
-        this.shadowRoot.querySelector("#timingsStep").classList.add("done");
-        this.requestUpdate();
-        window.requestAnimationFrame(()=>{
-            window.requestAnimationFrame(()=>{
-                if(this.repetitionBased != false) {        
-                    const sets = this.shadowRoot.querySelector("#sets") as HTMLInputElement;
-                    const setsdisplay = this.shadowRoot.querySelector("#setsdisplay") as HTMLSpanElement;
-                    setsdisplay.style.top = sets.offsetTop - sets.offsetHeight / 2 + "px";
-                    setsdisplay.style.left = sets.offsetLeft + (this.sets/23 * sets.offsetWidth) + 2 + "px";
-                    }
-                const reps = this.shadowRoot.querySelector("#reps") as HTMLInputElement;
-                const repsdisplay = this.shadowRoot.querySelector("#repsdisplay") as HTMLSpanElement;
-                repsdisplay.style.top = reps.offsetTop - reps.offsetHeight / 2 + "px";
-                repsdisplay.style.left = reps.offsetLeft + (this.reps/16 * reps.offsetWidth) - 7 + "px"; 
-                this.requestUpdate();
-                })}
-            )
+     
 
     }
 
@@ -344,12 +353,12 @@ export class AddExcercise extends LitElement{
                 this.requestUpdate();
                 break;
             case 1:
-                    this.goStepType();
-                    break;
+                this.step = 2;
+                this.shadowRoot.querySelector("#timingsStep").classList.add("done");
+                this.requestUpdate();
+                break;
             
             case 2:
-                this.excercise.reps = this.reps;
-                this.repetitionBased != false ? this.excercise.sets - this.sets : undefined;
                 this.excercise.repLength = Number(repLengthInput.value);
                 console.log(this.excercise);
                 break
@@ -382,36 +391,39 @@ export class AddExcercise extends LitElement{
                 ${this.step == 1
                ? html `<h2>Choose the type of the excercise</h2>
                     <div id="squares">
-                        <button type="button" class="square" @click="${this.saveType}" id="dur">Isometric <br/><span>duration-based</span></button>
-                        <button type="button" class="square" @click="${this.saveType}" id="rep">Isotonic <br/><span>with sets and repetitions</span></button>
+                        <button type="button" class="square ${this.editingMode && this.excercise.sets == null ? "selected" : undefined}" @click="${this.saveType}" id="dur">Isometric <br/><span>duration-based</span></button>
+                        <button type="button" class="square ${this.editingMode && this.excercise.sets == null ? undefined : "selected"}" @click="${this.saveType}" id="rep">Isotonic <br/><span>with sets and repetitions</span></button>
                     </div>`
                
                : this.step == 2
                      ? html `
                         <h2>Choose the timing options</h2>
                         <h3>How many seconds lasts one repetition?</h3>
-                        <input required type="tel" id="seconds"><br/>
+                        <input required type="tel" value="${this.excercise.repLength != 0 ? this.excercise.repLength : undefined}" id="seconds"><br/>
                         <label for="reps">How many ${this.durationBased != false ? `repetitions?` : `repetitions in one set?`}</label><br/>
-                        <input type="range" @input="${this.displayreps}" id="reps" min="1" max="15" value="1">
-                        <span id="repsdisplay">${this.reps}</span>
+                        <input type="range" @input="${this.displayreps}" id="reps" min="1" max="15" value="${this.excercise.reps != null ? this.excercise.reps : "1"}">
+                        <span class="displayed">${this.excercise.reps != 0 ? this.excercise.reps : "1"}</span>
                         ${this.repetitionBased != false 
                         ? html `
                                 <h3>How many sets?</h3><br/>
-                                <input type="range" @input="${this.displaysets}" id="sets" min="1" max="20" value="1">
-                                <span id="setsdisplay">${this.sets}</span>`
+                                <input type="range" @input="${this.displaysets}" id="sets" min="1" max="20" value="${this.excercise.sets != null ? this.excercise.sets : "1"}">
+                                <span class="displayed">${this.excercise.sets != 0 ? this.excercise.sets : "1"}</span>`
                 : undefined}
                 
                 <h3>How long should be breaks between ${this.durationBased != false ? `excercises` : `sets`}</h3>
                     <div id="pauses">
-                        <button type="button" class="round" @click="${this.savePause}" value="5" id="five">5 sec</button>
-                        <button type="button" class="round selected" @click="${this.savePause}" value="15" id="fifteen">15 sec</button>
-                        <button type="button" class="round" @click="${this.savePause}" value="30" id="thirty">30 sec</button>
+                        ${this.pauses.map(
+                            pause=>
+                            html `
+                            <button type="button" class="round ${Number(pause.value) == this.excercise.pauseLength ? "selected" : undefined}" @click="${this.savePause}" value="${pause.value}" id="${pause.id}">${pause.value} sec</button>
+                            `
+                        )}
                     </div>`
 
             : html `   <h2>Chose the name for your excercise</h2>
-                       <input name="name" id="name" autocomplete="off" maxlength="30" required placeholder="e.g. plank or sit-ups" type="text">`}
+                       <input name="name" id="name" autocomplete="off" maxlength="30" required placeholder="e.g. plank or sit-ups" value="${this.excercise.name != null ? this.excercise.name : undefined}" type="text">`}
             
-                <button ?disabled="${this.step==1 || this.step==2}" type="submit">Continue</button>
+                <button ?disabled="${(!this.editingMode && this.step==1) || (!this.editingMode && this.step==2)}" type="submit">Continue</button>
                 </form>
              `
     }
