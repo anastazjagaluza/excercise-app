@@ -12,7 +12,6 @@ export class AddExcercise extends LitElement{
     @property({attribute: false}) excercise: excercise = {
         id: "",
         name: "",
-        sets: 0,
         reps: 0,
         repLength: 0,
         pauseLength: 0
@@ -242,6 +241,7 @@ export class AddExcercise extends LitElement{
     firstUpdated(){
         const params = new URL(location.href).searchParams;
         if(params.get('id') != null ) {
+            this.editingMode = true;
             const newExcercise: excercise = {
                 id: "1",
                 name: "Push-ups",
@@ -249,19 +249,19 @@ export class AddExcercise extends LitElement{
                 repLength: 30,
                 pauseLength: 30
             };
-
-            if(newExcercise.sets == null || newExcercise.sets == 0){
-                this.durationBased = true;
-                this.editingMode = true;
+                 if(newExcercise.sets == null || newExcercise.sets == 0){
+                    this.durationBased = true;
+                }
+                else {
+                    this.repetitionBased = true;
+                }
+            this.excercise = newExcercise;
+            this.requestUpdate();
+            
             }
             else {
-                this.repetitionBased = true;
+        this.editingMode = false;
             }
-            this.excercise = newExcercise;
-            
-        }
-
-        this.requestUpdate();
     
     }
 
@@ -316,18 +316,12 @@ export class AddExcercise extends LitElement{
     displayreps() {
         const target = this.shadowRoot.querySelector("#reps") as HTMLInputElement;
         this.excercise.reps = Number(target.value);
-        // const display = this.shadowRoot.querySelector("#repsdisplay") as HTMLSpanElement;
-        // display.style.top = target.offsetTop - target.offsetHeight / 2 + "px";
-        // display.style.left = (target.offsetLeft + (this.reps/16 * target.offsetWidth)) - 10 + "px";
         this.requestUpdate();
     }
 
     displaysets() {       
         const target = this.shadowRoot.querySelector("#sets") as HTMLInputElement;
         this.excercise.sets = Number(target.value);
-        // const display = this.shadowRoot.querySelector("#setsdisplay") as HTMLSpanElement;
-        // display.style.top = target.offsetTop - target.offsetHeight / 2 + "px";
-        // display.style.left = (target.offsetLeft + (this.sets/23 * target.offsetWidth)) + 2 + "px"; 
         this.requestUpdate();
     }
 
@@ -368,9 +362,7 @@ export class AddExcercise extends LitElement{
         const target = e.target as HTMLButtonElement;
         const form = this.shadowRoot.querySelector("form");
         if(Number(target.value) < this.step ) {
-            switch(target.value) {
-
-            }
+            this.step = Number(target.value);
         }
         else {
             form.submit();
@@ -391,15 +383,15 @@ export class AddExcercise extends LitElement{
                 ${this.step == 1
                ? html `<h2>Choose the type of the excercise</h2>
                     <div id="squares">
-                        <button type="button" class="square ${this.editingMode && this.excercise.sets == null ? "selected" : undefined}" @click="${this.saveType}" id="dur">Isometric <br/><span>duration-based</span></button>
-                        <button type="button" class="square ${this.editingMode && this.excercise.sets == null ? undefined : "selected"}" @click="${this.saveType}" id="rep">Isotonic <br/><span>with sets and repetitions</span></button>
+                        <button type="button" class="${this.editingMode != false ? this.excercise.sets != null ? "square" : "selected square" : "square"}" @click="${this.saveType}" id="dur">Isometric <br/><span>duration-based</span></button>
+                        <button type="button" class="${this.editingMode != false ? this.excercise.sets != null ? "selected square"  : "square" : "square"}" @click="${this.saveType}" id="rep">Isotonic <br/><span>with sets and repetitions</span></button>
                     </div>`
                
                : this.step == 2
                      ? html `
                         <h2>Choose the timing options</h2>
                         <h3>How many seconds lasts one repetition?</h3>
-                        <input required type="tel" value="${this.excercise.repLength != 0 ? this.excercise.repLength : undefined}" id="seconds"><br/>
+                        <input required type="tel" value="${this.excercise.repLength != 0 ? this.excercise.repLength : 0}" id="seconds"><br/>
                         <label for="reps">How many ${this.durationBased != false ? `repetitions?` : `repetitions in one set?`}</label><br/>
                         <input type="range" @input="${this.displayreps}" id="reps" min="1" max="15" value="${this.excercise.reps != null ? this.excercise.reps : "1"}">
                         <span class="displayed">${this.excercise.reps != 0 ? this.excercise.reps : "1"}</span>
@@ -423,7 +415,7 @@ export class AddExcercise extends LitElement{
             : html `   <h2>Chose the name for your excercise</h2>
                        <input name="name" id="name" autocomplete="off" maxlength="30" required placeholder="e.g. plank or sit-ups" value="${this.excercise.name != null ? this.excercise.name : undefined}" type="text">`}
             
-                <button ?disabled="${(!this.editingMode && this.step==1) || (!this.editingMode && this.step==2)}" type="submit">Continue</button>
+                <button ?disabled="${!this.editingMode && this.step == 1 || this.step == 2}" type="submit">${this.step == 2 ? "Done" : "Continue"}</button>
                 </form>
              `
     }

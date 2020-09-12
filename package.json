@@ -4,8 +4,8 @@
   "description": "app for planning custom workout",
   "main": "index.js",
   "scripts": {
-    "watch": "parcel index.html workouts.html add.html --port 1111",
-    "build": "parcel build index.html workouts.html add.html"
+    "watch": "parcel index.html workouts.html add.html records.html --port 1111",
+    "build": "parcel build index.html workouts.html add.html records.html"
   },
   "repository": {
     "type": "git",

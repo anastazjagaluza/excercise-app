@@ -10,6 +10,8 @@ export class WorkoutManager extends LitElement{
 
     @property({attribute: false}) workout: workout = {id: "w00", name: "My Workout", excercises: [
         {id: "w01ex01", name: "Push-up", sets: 3, reps: 10, repLength: 30, pauseLength: 15}]};
+    @property({attribute: false}) newWorkout: workout = {id: "", name: "", excercises: [
+            {id: "", name: "",  reps: 0, repLength: 0, pauseLength: 0}]};
     @property({attribute: false}) workoutList: workoutList = {
         name: "Your workouts",
         excercises: [
@@ -20,16 +22,23 @@ export class WorkoutManager extends LitElement{
         ]
     }
 
+
     firstUpdated(){
         const list = this.shadowRoot.querySelector("#list") as ListItems;
         const params = new URL(location.href).searchParams;
         if(params.get('id') != null ) {
             list.workout = this.workout;
             list.workoutList = null;
-            
+            list.new = false;
+        }
+        else if(params.get('new') != null) {
+            list.workout = this.newWorkout;
+            list.workoutList = null;
+            list.new = true;
         }
         else {
             list.workoutList = this.workoutList;
+            list.new = false;
             list.workout = null;
         }
 

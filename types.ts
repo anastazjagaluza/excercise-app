@@ -15,6 +15,17 @@ export interface workout {
     excercises: Array<excercise>
 }
 
+export interface record {
+    name?: string,
+    value?: number,
+    date: string
+}
+
+export interface records {
+    weight: record[],
+    workouts: record[]
+}
+
 export interface listElement {
     id: string,
     name: string,

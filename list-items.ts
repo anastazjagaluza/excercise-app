@@ -1,6 +1,8 @@
 import { html, LitElement, css, unsafeCSS, property, customElement } from "lit-element";
 import 'regenerator-runtime/runtime';
-import { workout, workoutList } from "./types";
+import "./add-item";
+import "./one-item";
+import { workout, workoutList, records, record } from "./types";
 
 
 @customElement("list-items")
@@ -8,7 +10,10 @@ export class ListItems extends LitElement{
 
     @property({type: Boolean, attribute: true}) active = true;
     @property({attribute: false}) workout: workout | undefined;
+    @property({attribute: false}) new: Boolean = false;
     @property({attribute: false}) workoutList: workoutList | undefined;
+    @property({attribute: false}) records: records | undefined;
+    @property({attribute: true}) recType: string | undefined;
   
 
         
@@ -54,12 +59,14 @@ export class ListItems extends LitElement{
             text-align: center;
         }
 
-        .excercise {
+        .excercise, .record {
             padding: 1rem;
-            background: #DB6C9F;
             display: flex;
             color: white;
             align-items: center;
+        }
+        .excercise {
+            background: #DB6C9F;
         }
         .circle {
             font-size: 100%;
@@ -105,36 +112,56 @@ export class ListItems extends LitElement{
 
     render(){
         return html`
-            ${this.workout != null && this.workout != undefined
+            ${this.workout != null
              ? html `<input type="text" value="${this.workout.name}" placeholder="My workout">`
-             : html `<input type="text" value="Your Workouts" disabled placeholder="My workout">`}
+             : this.records != null 
+                    ? html `<input type="text" value="Your ${this.recType}" placeholder="My workout">`
+                    : this.workoutList != null
+                        ? html `<input type="text" value="Your Workouts" disabled placeholder="My workout">`
+                        :  undefined}
             <div id="content">
-            ${this.workout != null 
-                ? this.workout.excercises.map(el =>
-                html `<div class="excercise">
-                <a href="add.html?id=${el.id}">${el.name}</a>
-                    <div class="detailedgroup">
-                        <div class="circle"><span class="details">${el.sets} / ${el.reps}</span></div>
-                        <div class="circle"><span class="details lengths">${el.repLength}s / ${el.pauseLength}s</span></div>
-                    </div>
-                </div>`)
-                : this.workoutList.excercises.map(el=>
+            ${this.new != true
+                ? this.workout != null
+                  ? this.workout.excercises.map(el =>
+                         html `     
+                            <one-item 
+                                headline="${el.name}" 
+                                link="add.html?id=${el.id}"
+                                leftCircle="${el.sets} / ${el.reps}"
+                                rightCircle="${el.repLength}s / ${el.pauseLength}s">
+                            </one-item>`)
+                :  this.workoutList != null 
+                    ? this.workoutList.excercises.map(el=>
                     html `
-                    <div class="excercise">
-                     <a href="workouts.html?id=${el.id}">${el.name}</a>
-                    <div class="detailedgroup">
-                        <div class="circle"><span class="details lengths">${el.excercises}</span></div>
-                    </div>
-                </div>
-                    `)}
-            <div class="excercise">     
-                ${this.workout != null 
-                    ? html `<a href="add.html">Add a new excercise... </a>`
-                    : html `<a href="workouts.html?new">Add a new workout... </a>`}
-                <div class="detailedgroup">
-                    <div id="new" class="circle"><span class="details lengths">+</span></div>
-                </div>
-            </div>
+                    <one-item 
+                        headline="${el.name}" 
+                        link="workouts.html?id=${el.id}"
+                        rightCircle="${el.excercises}">
+                    </one-item>
+                    `)
+                : this.records != null
+                    ? this.recType == "weight"  
+                        ? this.records.weight.map(el=>
+                        html `<one-item record headline="${el.value} kg" rightCircle="${el.date}"></one-item>`)
+                        : this.records.workouts.map(el=>
+                        html `<one-item record headline="${el.name}" rightCircle="${el.date}"></one-item>`)
+                    : undefined
+                    : undefined}
+              
+                          ${this.workout != null && this.new == true
+                            ? html `
+                            <add-item text="Add a new excercise..." link="add.html"></add-item>
+                            `
+                            : this.workoutList != null 
+                                ? html `
+                                 <add-item text="Add a new workout..." link="workouts.html?new"></add-item>
+                                `
+                                : this.recType == "weight"
+                                ? html `
+                                   <add-item text="Add a new measurement..." link=""></add-item>
+                              `
+                            : undefined}
+                             
             </div>
              `
     }

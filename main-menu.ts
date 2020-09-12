@@ -78,7 +78,7 @@ export class MainMenu extends LitElement{
     render(){
         return html`
             <a class="router" id="start">Excercise now</a>
-            <a class="router" @click="${this.bluetoothStuff}"  id="create">See your progress</a>
+            <a class="router"  id="create" href="records.html?workouts">See your progress</a>
             <a class="router" id="manage" href="workouts.html">Manage your workouts</a>
             <a id="logout" href="">Log out</a>
              `
